@@ -1,7 +1,11 @@
 ﻿
 using System;
+using System.Collections.Generic;
 using System.IO;
+
 using Java.Nio.File;
+using OS;
+using os = OS.OS;
 
 namespace WalkingAids
 {
@@ -12,7 +16,9 @@ namespace WalkingAids
 		
 		public static void Main(string[] args)
 		{
-			FilesWalkFileTreeTest();
+			//FilesWalkFileTreeTest();
+			OSWalkTest();
+			
 			Console.WriteLine("Press any key to continue . . . ");
 			Console.ReadKey(true);
 		}
@@ -56,6 +62,29 @@ namespace WalkingAids
 			DirectoryInfo dir = new DirectoryInfo(START_DIR);
 			FileVisitor visitor = new ConsoleFileVisitor();
 			Files.WalkFileTree(dir, visitor);
+		}
+		
+		private static void OnError(Exception exc)
+		{
+			Console.Error.WriteLine("[ERR] {0}: {1}", exc.GetType().Name, exc.Message);
+		}
+		
+		private static void OSWalkTest()
+		{
+			foreach(WalkTuple t in os.Walk(START_DIR, true, OnError, false))
+			{
+				Console.WriteLine("Directory of {0}", t.DirPath);
+				
+				foreach(string dir in t.DirNames)
+				{
+					Console.WriteLine("  [+] {0}", dir);
+				}
+				
+				foreach(string file in t.FileNames)
+				{
+					Console.WriteLine("      {0}", file);
+				}
+			}
 		}
 	}
 }
