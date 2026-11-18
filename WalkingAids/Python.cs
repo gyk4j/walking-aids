@@ -102,6 +102,7 @@ namespace OS
 		public static WalkTuple[] Walk(string top, bool topdown, OnError onError, bool followLinks)
 		{
 			IList<WalkTuple> history = new List<WalkTuple>();
+			Stack<WalkTuple> bottomUp = new Stack<WalkTuple>();
 						
 			Stack<string> pending = new Stack<string>();
 			
@@ -121,16 +122,40 @@ namespace OS
 						pending.Push(Path.Combine(dir, t.DirNames[i]));
 					}
 					
-					history.Add(t);
-				} catch(DirectoryNotFoundException exc) {
-					onError(exc);
-				} catch(UnauthorizedAccessException exc) {
-					onError(exc);
-				} catch(IOException exc) {
-					onError(exc);
-				}			
-			}
+					// If walking topdown, register visit immediately.
+					// If walking bottomup and if it's a leaf node with no 
+					// children to recurse, there is no need to wait.
+					if (topdown || t.DirNames.Length == 0)
+					{
+						history.Add(t);
 						
+						// Once next directory is not a child directory of a parent 
+						// directory i.e. moved on to next unrelated directory, any 
+						// parent directories awaiting logging to history can be 
+						// recorded.
+						while(
+							bottomUp.Count > 0 && 
+							(
+								(pending.Count > 0 && 
+								 !pending.Peek().StartsWith(bottomUp.Peek().DirPath + Path.DirectorySeparatorChar)) ||
+								(pending.Count == 0)
+							)
+						)
+						{							
+							history.Add(bottomUp.Pop());
+						}
+					}
+					// If walking bottom up, delay recording visit until all
+					// children sub-directories have been visited.
+					else
+					{
+						bottomUp.Push(t);
+					}
+				} catch(Exception exc) {
+					onError(exc);
+				}
+			}
+					
 			WalkTuple[] tuples = new WalkTuple[history.Count];
 			history.CopyTo(tuples, 0);
 			return tuples;

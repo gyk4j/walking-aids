@@ -13,6 +13,9 @@ namespace WalkingAids
 	{
 		//private const string START_DIR = @"C:\Windows";
 		private static string START_DIR = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+		//private static string START_DIR = @"C:\Windows\Web";
+		
+		private static bool TOPDOWN = true; // True - Topdown; False = Bottom-up
 		
 		public static void Main(string[] args)
 		{
@@ -71,18 +74,18 @@ namespace WalkingAids
 		
 		private static void OSWalkTest()
 		{
-			foreach(WalkTuple t in os.Walk(START_DIR, true, OnError, false))
+			foreach(WalkTuple t in os.Walk(START_DIR, TOPDOWN, OnError, false))
 			{
 				Console.WriteLine("Directory of {0}", t.DirPath);
 				
 				foreach(string dir in t.DirNames)
 				{
-					Console.WriteLine("  [+] {0}", dir);
+					//Console.WriteLine("  [+] {0}", dir);
 				}
 				
 				foreach(string file in t.FileNames)
 				{
-					Console.WriteLine("      {0}", file);
+					//Console.WriteLine("      {0}", file);
 				}
 			}
 		}
