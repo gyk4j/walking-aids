@@ -15,7 +15,7 @@ namespace WalkingAids
 		private static string START_DIR = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
 		//private static string START_DIR = @"C:\Windows\Web";
 		
-		private static bool TOPDOWN = true; // True - Topdown; False = Bottom-up
+		private static bool TOPDOWN = false; // True - Topdown; False = Bottom-up
 		
 		public static void Main(string[] args)
 		{

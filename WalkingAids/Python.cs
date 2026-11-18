@@ -122,12 +122,27 @@ namespace OS
 						pending.Push(Path.Combine(dir, t.DirNames[i]));
 					}
 					
-					// If walking topdown, register visit immediately.
-					// If walking bottomup and if it's a leaf node with no 
-					// children to recurse, there is no need to wait.
-					if (topdown || t.DirNames.Length == 0)
+					if (topdown)
 					{
+						// If walking topdown, register visit immediately.
 						history.Add(t);
+					}
+					else // Bottom-up
+					{
+						// If walking bottom up, delay recording visit until all
+						// children sub-directories have been visited.
+						if (t.DirNames.Length > 0)
+							bottomUp.Push(t);
+						else if (t.DirNames.Length == 0)
+						{
+							// If walking bottomup and if it's a leaf node with no 
+							// children to recurse, there is no need to wait.
+							history.Add(t);
+						}
+						else
+						{
+							Console.Error.WriteLine(new OverflowException());
+						}
 						
 						// Once next directory is not a child directory of a parent 
 						// directory i.e. moved on to next unrelated directory, any 
@@ -145,12 +160,6 @@ namespace OS
 							history.Add(bottomUp.Pop());
 						}
 					}
-					// If walking bottom up, delay recording visit until all
-					// children sub-directories have been visited.
-					else
-					{
-						bottomUp.Push(t);
-					}
 				} catch(Exception exc) {
 					onError(exc);
 				}
@@ -158,6 +167,7 @@ namespace OS
 					
 			WalkTuple[] tuples = new WalkTuple[history.Count];
 			history.CopyTo(tuples, 0);
+			//Console.WriteLine("{0} directories walked.", tuples.Length);
 			return tuples;
 		}
 		
