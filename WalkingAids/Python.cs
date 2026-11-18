@@ -113,6 +113,13 @@ namespace OS
 				string dir = pending.Pop();
 				
 				try {
+					if(!followLinks && 
+					   ((File.GetAttributes(dir) & FileAttributes.ReparsePoint) == FileAttributes.ReparsePoint))
+					{
+						//Console.WriteLine("Skipped link: {0}", dir);
+						continue;
+					}
+					
 					WalkTuple t = Visit(dir);
 					
 					// Push in reverse order as the stack will be visited in 

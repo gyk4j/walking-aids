@@ -15,7 +15,12 @@ namespace WalkingAids
 		private static string START_DIR = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
 		//private static string START_DIR = @"C:\Windows\Web";
 		
-		private static bool TOPDOWN = false; // True - Topdown; False = Bottom-up
+		private static bool TOPDOWN = true; // True - Topdown; False = Bottom-up
+		
+		// Even if turned on, attempts to follow links (junction points) would
+		// fail with UnauthorizedAccessException in Windows when running as a 
+		// normal user.
+		private static bool FOLLOW_LINKS = false;
 		
 		public static void Main(string[] args)
 		{
@@ -69,12 +74,13 @@ namespace WalkingAids
 		
 		private static void OnError(Exception exc)
 		{
-			Console.Error.WriteLine("[ERR] {0}: {1}", exc.GetType().Name, exc.Message);
+			//Console.Error.WriteLine("[ERR] {0}: {1}", exc.GetType().Name, exc.Message);
+			Console.Error.WriteLine(exc.StackTrace);
 		}
 		
 		private static void OSWalkTest()
 		{
-			foreach(WalkTuple t in os.Walk(START_DIR, TOPDOWN, OnError, false))
+			foreach(WalkTuple t in os.Walk(START_DIR, TOPDOWN, OnError, FOLLOW_LINKS))
 			{
 				Console.WriteLine("Directory of {0}", t.DirPath);
 				
